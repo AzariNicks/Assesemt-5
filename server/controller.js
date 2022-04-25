@@ -1,17 +1,36 @@
 
 
+
+require('dotenv').config()
+const {CONNECTION_STRING} = process.env
+Sequelize = require('sequelize')
+
+const sequelize = new Sequelize(CONNECTION_STRING, {
+    dialect: 'postgres', 
+    dialectOptions: {
+        ssl: {
+            rejectUnauthorized: false
+        }
+    }
+})
 module.exports = {
     seed: (req, res) => {
         sequelize.query(`
             drop table if exists cities;
             drop table if exists countries;
 
-            create table countries (
+            CREATE TABLE countries (
                 country_id serial primary key, 
                 name varchar
-            );
-
-            *****YOUR CODE HERE*****
+                 );
+                
+                CREATE TABLE cities(
+                city_id SERIAL PRIMARY KEY,
+                name Varchar(200),
+                rating int,
+                country_id int,
+                FOREIGN KEY (country_id) REFERENCES countries(country_id)
+                ); 
 
             insert into countries (name)
             values ('Afghanistan'),
@@ -213,5 +232,64 @@ module.exports = {
             console.log('DB seeded!')
             res.sendStatus(200)
         }).catch(err => console.log('error seeding DB', err))
-    }
+    },
+
+    getCountries: (req,res) => {
+        sequelize.query(`SELECT *
+        from countries;`)
+        .then(dbRes => {res.status(200).send(dbRes[0])})
+        .catch(err => console.log(`Cant use the names`, err))
+
+
+
+
+    },
+
+    createCity: (req,res) => {
+        const {name, rating, countryId} =req.body
+
+        // console.log(req.body)
+        // console.log(countryId)
+        sequelize.query(`INSERT INTO cities (name, rating, country_id)
+        Values ('${name}' ,${rating},${countryId});`)
+        .then(dbRes => res.status(200).send(dbRes[0])
+         )
+        .catch(err => console.log(`Could'nt insert a city lol`, err))
+        
+    
+    
+    
+    
+    },
+    getCities: (req,res) => {sequelize.query(`
+    SELECT *
+    from cities;`)
+    .then(dbRes => {res.status(200).send(dbRes[0])})
+    .catch(err => console.log(`Couldnt Get the cities lol`, err))
+},
+deleteCity: (req,res) => {
+       const {id} = req.params
+    //    console.log(id)
+       sequelize.query(`
+        Delete  
+        From cities
+        where city_id = ${id}`)
+      
+        .then(dbRes => {res.status(200).send(dbRes[0])})
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -16,6 +16,7 @@ function handleSubmit(e) {
         name: nameInput.value, 
         rating: +userRating, 
         countryId: +countrySelect.value
+      
     }
 
     axios.post('http://localhost:4004/cities', body)
@@ -61,7 +62,9 @@ function getCountries() {
                 countrySelect.appendChild(option)
             })
         })
-}
+        console.log(countrySelect)
+
+    }
 
 getCountries()
 getCities()
